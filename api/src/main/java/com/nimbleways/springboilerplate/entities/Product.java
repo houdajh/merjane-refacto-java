@@ -1,10 +1,13 @@
 package com.nimbleways.springboilerplate.entities;
 
-import lombok.*;
-
-import java.time.LocalDate;
+import com.nimbleways.springboilerplate.enums.ProductType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -24,8 +27,9 @@ public class Product {
     @Column(name = "available")
     private Integer available;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private String type;
+    private ProductType type;
 
     @Column(name = "name")
     private String name;
@@ -38,4 +42,32 @@ public class Product {
 
     @Column(name = "season_end_date")
     private LocalDate seasonEndDate;
+
+    public boolean isAvailable() {
+        return available > 0;
+    }
+
+    public void decreamentStock() {
+        available--;
+    }
+
+    public boolean isInSeasonPeriod() {
+        return LocalDate.now().isAfter(getSeasonStartDate()) && LocalDate.now().isBefore(getSeasonEndDate());
+    }
+
+    public boolean isExpired() {
+        return LocalDate.now().isAfter(getExpiryDate());
+    }
+
+    public void markOutOfStock() {
+        available = 0;
+    }
+
+    public boolean isSeasonNotStarted() {
+        return LocalDate.now().isBefore(getSeasonStartDate());
+    }
+
+    public boolean isSeasonEndingBeforeRestock() {
+        return LocalDate.now().plusDays(getLeadTime()).isAfter(getSeasonEndDate());
+    }
 }
